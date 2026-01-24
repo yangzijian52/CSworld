@@ -51,8 +51,8 @@ free-mode: false //设置为true则为免费模式
 current-server: "lobby" //填写当前服务器名称
 
 servers:
-  lobby:      //填写服务器名称
-    cost: 0     //填写传送的价格
+  lobby:         //填写服务器名称
+    cost: 0      //填写传送的价格
   survival:      //以此类推即可
     cost: 50
   skyblock:

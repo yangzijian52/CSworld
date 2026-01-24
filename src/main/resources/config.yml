@@ -2,6 +2,11 @@
 # 全局免费模式，若为true则所有传送免费（无视经济插件）
 free-mode: false
 
+# 是否开启单次付费
+# true: 玩家只需支付一次费用，之后传送该服务器永久免费（数据保存在data.yml）
+# false: 玩家每次传送都需要支付费用（不保存数据）
+one-time-payment: true
+
 # 当前服务器名称（用于检测是否在同一服务器）
 current-server: "服务器名称"
 

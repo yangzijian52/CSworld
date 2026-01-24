@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>CSword</artifactId>
-    <version>1.0</version>
+    <artifactId>CSworld</artifactId>
+    <version>1.1</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

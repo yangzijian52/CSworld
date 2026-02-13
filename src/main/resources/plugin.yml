@@ -1,5 +1,5 @@
 name: CSworld
-version: 1.1
+version: 1.2
 main: com.example.CSworld.CSworld
 api-version: 1.21
 commands:

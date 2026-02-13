@@ -5,15 +5,22 @@ free-mode: false
 # 是否开启单次付费
 # true: 玩家只需支付一次费用，之后传送该服务器永久免费（数据保存在data.yml）
 # false: 玩家每次传送都需要支付费用（不保存数据）
+#和free-mode只能开启一个
 one-time-payment: true
 
 # 当前服务器名称（用于检测是否在同一服务器）
-current-server: "服务器名称"
+# 注意：这里填写的是英文服务器名，显示时会自动使用下方配置的中文名称
+current-server: "lobby"
 
 # 目标服务器名称
 servers:
+  lobby:
+    display-name: "大厅"  # 显示给玩家的中文名称
+    cost: 0  # 修改此值即可调整扣款金额
   kongdao:
-    cost: 1  # 修改此值即可调整扣款金额
+    display-name: "空岛世界"  # 显示给玩家的中文名称
+    cost: 1
   zhucheng:
-    cost: 1 # 以此类推即可
+    display-name: "主城"  # 显示给玩家的中文名称
+    cost: 1
 

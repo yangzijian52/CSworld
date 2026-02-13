@@ -27,6 +27,7 @@ public class CSworld extends JavaPlugin implements PluginMessageListener {
     private FileConfiguration dataConfig;
     private final Map<UUID, Boolean> cooldownMap = new HashMap<>();
     private Map<String, Integer> serverCosts = new HashMap<>();
+    private Map<String, String> serverDisplayNames = new HashMap<>(); // 新增：服务器中文名称映射
     private boolean freeMode = false;
     private boolean oneTimePayment = true; // 新增：是否开启单次付费
     private String currentServer;
@@ -111,11 +112,13 @@ public class CSworld extends JavaPlugin implements PluginMessageListener {
 
         sender.sendMessage(ChatColor.GOLD + "可用服务器列表:");
         serverCosts.forEach((server, cost) -> {
+            String displayName = serverDisplayNames.getOrDefault(server, server); // 获取中文名称，没有则使用英文名
             String costInfo = freeMode ? ChatColor.GREEN + "免费" : ChatColor.GOLD + "(价格: " + cost + "金币)";
-            sender.sendMessage(ChatColor.YELLOW + "- " + ChatColor.GREEN + server + " " + costInfo);
+            sender.sendMessage(ChatColor.YELLOW + "- " + ChatColor.GREEN + displayName + " " + ChatColor.GRAY + "[" + server + "] " + costInfo);
         });
 
-        sender.sendMessage(ChatColor.GRAY + "当前服务器: " + ChatColor.GREEN + currentServer);
+        String currentDisplayName = serverDisplayNames.getOrDefault(currentServer, currentServer);
+        sender.sendMessage(ChatColor.GRAY + "当前服务器: " + ChatColor.GREEN + currentDisplayName);
         sender.sendMessage(ChatColor.GRAY + "使用 §a/cs <服务器名> §7进行传送");
         sender.sendMessage(ChatColor.GRAY + "管理员使用 §a/cs reload §7重载配置");
         return true;
@@ -139,7 +142,7 @@ public class CSworld extends JavaPlugin implements PluginMessageListener {
         return true;
     }
 
-    private boolean handleTeleport(Player player, String targetServer) {
+    private boolean handleTeleport(Player player, String input) {
         UUID uuid = player.getUniqueId();
 
         if (cooldownMap.containsKey(uuid)) {
@@ -147,17 +150,22 @@ public class CSworld extends JavaPlugin implements PluginMessageListener {
             return true;
         }
 
-        if (!serverCosts.containsKey(targetServer)) {
+        // 将输入转换为实际的服务器名称（支持中文和英文）
+        String targetServer = resolveServerName(input.toLowerCase());
+        
+        if (targetServer == null) {
             player.sendMessage(ChatColor.RED + "未知的服务器名称！使用 /cs 查看可用服务器");
             return true;
         }
 
         if (targetServer.equalsIgnoreCase(currentServer)) {
-            player.sendMessage(ChatColor.RED + "您已经在 " + currentServer + " 服务器！");
+            String displayName = serverDisplayNames.getOrDefault(currentServer, currentServer);
+            player.sendMessage(ChatColor.RED + "您已经在 " + displayName + " 服务器！");
             return true;
         }
 
         int costAmount = serverCosts.get(targetServer);
+        String displayName = serverDisplayNames.getOrDefault(targetServer, targetServer);
         cooldownMap.put(uuid, true);
 
         new BukkitRunnable() {
@@ -169,18 +177,39 @@ public class CSworld extends JavaPlugin implements PluginMessageListener {
                     player.sendMessage(ChatColor.GREEN + "倒计时 " + countdown + " 秒...");
                     countdown--;
                 } else {
-                    processPaymentAndTeleport(player, targetServer, costAmount);
+                    processPaymentAndTeleport(player, targetServer, costAmount, displayName);
                     cooldownMap.remove(uuid);
                     cancel();
                 }
             }
         }.runTaskTimer(this, 0L, 20L);
 
-        player.sendMessage(ChatColor.GREEN + "正在传送至 " + targetServer + "...");
+        player.sendMessage(ChatColor.GREEN + "正在传送至 " + displayName + "...");
         return true;
     }
 
-    private void processPaymentAndTeleport(Player player, String targetServer, int costAmount) {
+    /**
+     * 解析服务器名称，支持中文和英文输入
+     * @param input 玩家输入的服务器名称（中文或英文）
+     * @return 实际的英文服务器名称，如果未找到则返回null
+     */
+    private String resolveServerName(String input) {
+        // 先检查是否直接匹配英文服务器名
+        if (serverCosts.containsKey(input)) {
+            return input;
+        }
+        
+        // 检查是否匹配中文显示名称
+        for (Map.Entry<String, String> entry : serverDisplayNames.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(input)) {
+                return entry.getKey();
+            }
+        }
+        
+        return null;
+    }
+
+    private void processPaymentAndTeleport(Player player, String targetServer, int costAmount, String displayName) {
         if (freeMode) {
             sendToServer(player, targetServer);
             return;
@@ -207,7 +236,7 @@ public class CSworld extends JavaPlugin implements PluginMessageListener {
                     paidPlayers.add(player.getUniqueId().toString());
                     dataConfig.set("servers." + targetServer, paidPlayers);
                     saveDataFile();
-                    player.sendMessage(ChatColor.GREEN + "您已解锁该服务器，以后传送将免费！");
+                    player.sendMessage(ChatColor.GREEN + "您已解锁 " + displayName + "，以后传送将免费！");
                 }
             } else {
                 player.sendMessage(ChatColor.RED + "扣款失败，余额不足！");
@@ -220,10 +249,15 @@ public class CSworld extends JavaPlugin implements PluginMessageListener {
 
     private void loadServerCosts() {
         serverCosts.clear();
+        serverDisplayNames.clear();
         ConfigurationSection servers = getConfig().getConfigurationSection("servers");
         if (servers != null) {
             servers.getKeys(false).forEach(server -> {
-                serverCosts.put(server.toLowerCase(), servers.getInt(server + ".cost", 0));
+                String serverLower = server.toLowerCase();
+                serverCosts.put(serverLower, servers.getInt(server + ".cost", 0));
+                // 读取中文显示名称，如果没有配置则使用英文名
+                String displayName = servers.getString(server + ".display-name", server);
+                serverDisplayNames.put(serverLower, displayName);
             });
         }
     }

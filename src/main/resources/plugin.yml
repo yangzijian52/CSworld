@@ -1,10 +1,16 @@
 name: CSworld
-version: 1.2
+version: ${project.version}
 main: com.example.CSworld.CSworld
 api-version: 1.21
+authors: [yangzijian52]
+depend: [Vault]
 commands:
   cs:
     description: 传送至其他服务器或重载配置
     usage: |
       /cs [服务器名称]
       /cs reload
+permissions:
+  csword.reload:
+    description: 允许重载插件配置
+    default: op

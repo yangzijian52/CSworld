@@ -5,12 +5,12 @@
 
     <groupId>com.example</groupId>
     <artifactId>CSworld</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
-        <paper.api.version>26.1.1.build.29-alpha</paper.api.version>
+        <paper.api.version>26.2.build.56-alpha</paper.api.version>
     </properties>
 
     <repositories>

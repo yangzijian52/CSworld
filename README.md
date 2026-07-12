@@ -48,8 +48,5 @@ mvn clean package
 ## 发布资料
 
 - [SpigotMC 正式资源页](https://www.spigotmc.org/resources/csworld.137017/)
-- [SpigotMC 资源介绍页](docs/SPIGOTMC-RESOURCE.md)
-- [SpigotMC 完整 BBCode 文档](docs/SPIGOTMC-RESOURCE-BBCODE.txt)
-- [SpigotMC 手动发布指南](docs/SPIGOTMC_MANUAL_PUBLISHING.md)
 - [更新日志](CHANGELOG.md)
 - [MIT License](LICENSE)
